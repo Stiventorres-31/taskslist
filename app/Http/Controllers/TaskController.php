@@ -60,6 +60,23 @@ class TaskController extends Controller
         return response()->json($task->load('user'), 201);
     }
 
+    public function completedTask($id){
+      
+
+        $task = Task::find($id);
+
+        if (!$task) {
+            return response()->json(['error' => 'Task not found.'], 404);
+        }
+
+        // Actualizar el campo 'completed' a 1
+        $task->completed = 1;
+        $task->save();
+
+        // Retornar la tarea actualizada
+        return response()->json(['message'=>'Task completed successfully.','task'=>$task], 200);
+    }
+
     // Actualizar tarea
     public function update(Request $request, $id)
     {

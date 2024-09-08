@@ -1814,12 +1814,16 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
         title: '',
         description: '',
         user: ''
-      },
-      selectedTask: null
+      }
     };
   },
   computed: _objectSpread({}, (0,vuex__WEBPACK_IMPORTED_MODULE_0__.mapState)(['tasks'])),
   methods: _objectSpread(_objectSpread({}, (0,vuex__WEBPACK_IMPORTED_MODULE_0__.mapActions)(['fetchTasks', 'addTask', 'completeTask', 'deleteTask'])), {}, {
+    fetchTasks: function fetchTasks() {
+      this.$store.dispatch('fetchTasks')["catch"](function (error) {
+        console.error('Error fetchTasks task:', error);
+      });
+    },
     addTask: function addTask() {
       var _this = this;
       if (!this.newTask.title || !this.newTask.description || !this.newTask.user) {
@@ -1832,12 +1836,6 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
         _this.newTask.title = '';
         _this.newTask.description = '';
         _this.newTask.user = '';
-
-        // this.fetchTasks().then(() => {
-        //     console.log(this.tasksOne); // Debería mostrar las tareas en la consola
-        // }).catch(error => {
-        //     console.error('Error fetching tasks:', error);
-        // });
       })["catch"](function (error) {
         console.error('Error adding task:', error);
       });
@@ -1856,13 +1854,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
       });
     }
   }),
-  mounted: function mounted() {
-    // this.fetchTasks().then(() => {
-    //     console.log(this.tasks.value);
-    // }).catch(error => {
-    //     console.error('Error fetching tasks:', error);
-    // });
-  }
+  mounted: function mounted() {}
 });
 
 /***/ }),
@@ -2080,23 +2072,37 @@ vue__WEBPACK_IMPORTED_MODULE_1__["default"].use(vuex__WEBPACK_IMPORTED_MODULE_2_
       state.tasks = state.tasks.filter(function (task) {
         return task.id !== taskId;
       });
+    },
+    COMPLETE_TASK: function COMPLETE_TASK(state, task) {
+      var updatedTask = task;
+      var index = state.tasks.findIndex(function (item) {
+        return item.id === task.id;
+      });
+      if (index !== -1) {
+        state.tasks.splice(index, 1, updatedTask); // Actualiza la tarea en la lista de tareas
+
+        state.tasks = state.tasks.filter(function (item) {
+          return item.id !== task.id;
+        });
+      }
     }
   },
   actions: {
     fetchTasks: function fetchTasks(_ref) {
       var commit = _ref.commit;
-      axios__WEBPACK_IMPORTED_MODULE_0___default().get('/tasks').then(function (response) {
-        commit('SET_TASKS', response.data); // response.data debe ser un array
+      //Todavia no esta funcionando
+      axios__WEBPACK_IMPORTED_MODULE_0___default().get("/tasks").then(function (response) {
+        commit("SET_TASKS", response.data); // response.data debe ser un array
       })["catch"](function (error) {
         console.error("Error fetching tasks:", error);
       });
     },
     addTask: function addTask(_ref2, task) {
       var commit = _ref2.commit;
-      axios__WEBPACK_IMPORTED_MODULE_0___default().post('/tasks', task).then(function (response) {
+      axios__WEBPACK_IMPORTED_MODULE_0___default().post("/tasks", task).then(function (response) {
         // console.log(response.data)
 
-        commit('ADD_TASK', response.data);
+        commit("ADD_TASK", response.data);
       })["catch"](function (error) {
         console.error("Error adding task:", error);
       });
@@ -2104,16 +2110,25 @@ vue__WEBPACK_IMPORTED_MODULE_1__["default"].use(vuex__WEBPACK_IMPORTED_MODULE_2_
     updateTask: function updateTask(_ref3, task) {
       var commit = _ref3.commit;
       axios__WEBPACK_IMPORTED_MODULE_0___default().put("/tasks/".concat(task.id), task).then(function (response) {
-        commit('UPDATE_TASK', response.data);
+        commit("UPDATE_TASK", response.data);
       })["catch"](function (error) {
         console.error("Error updating task:", error);
       });
     },
-    deleteTask: function deleteTask(_ref4, taskId) {
+    completeTask: function completeTask(_ref4, taskId) {
       var commit = _ref4.commit;
+      axios__WEBPACK_IMPORTED_MODULE_0___default().put("/tasks/completed/".concat(taskId)).then(function (response) {
+        commit("COMPLETE_TASK", response.data.task);
+        alert(response.data.message);
+      })["catch"](function (error) {
+        console.error("Error updating task:", error);
+      });
+    },
+    deleteTask: function deleteTask(_ref5, taskId) {
+      var commit = _ref5.commit;
       axios__WEBPACK_IMPORTED_MODULE_0___default()["delete"]("/tasks/".concat(taskId)).then(function (response) {
         alert(response.data.message);
-        commit('DELETE_TASK', taskId);
+        commit("DELETE_TASK", taskId);
       })["catch"](function (error) {
         console.error("Error deleting task:", error);
       });

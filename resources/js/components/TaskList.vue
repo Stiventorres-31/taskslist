@@ -29,6 +29,8 @@
         </form>
 
         <!-- LISTADO DE TODAS LAS TASKS -->
+
+
         <!-- <ul class="list-group mb-4">
             <li v-for="taskx in tasks" :key="taskx.id"
                 class="list-group-item d-flex justify-content-between align-items-center">
@@ -55,7 +57,7 @@ export default {
                 description: '',
                 user: ''
             },
-            selectedTask:null,
+           
         };
 
     },
@@ -65,8 +67,13 @@ export default {
     methods: {
         ...mapActions(['fetchTasks', 'addTask', 'completeTask', 'deleteTask']),
 
-
-
+        fetchTasks() {
+           
+           
+            this.$store.dispatch('fetchTasks').catch(error => {
+                console.error('Error fetchTasks task:', error);
+            });
+        },
         addTask() {
             if (!this.newTask.title || !this.newTask.description || !this.newTask.user) {
                 alert('Both title and description are required');
@@ -79,19 +86,12 @@ export default {
                 this.newTask.description = '';
                 this.newTask.user = '';
 
-               
-
-                // this.fetchTasks().then(() => {
-                //     console.log(this.tasksOne); // Debería mostrar las tareas en la consola
-                // }).catch(error => {
-                //     console.error('Error fetching tasks:', error);
-                // });
-
             }).catch(error => {
                 console.error('Error adding task:', error);
             });
 
         },
+
         completeTask(taskId) {
             // Se utiliza la acción 'completeTask'
             console.log(taskId)
@@ -107,11 +107,7 @@ export default {
         }
     },
     mounted() {
-        // this.fetchTasks().then(() => {
-        //     console.log(this.tasks.value);
-        // }).catch(error => {
-        //     console.error('Error fetching tasks:', error);
-        // });
+       
 
 
     }
