@@ -3,6 +3,7 @@ import Vuex from 'vuex';
 import TaskList from './components/TaskList.vue';
 import store from './store';
 import axios from 'axios';
+import UserList from './components/UserList.vue';
 
 Vue.use(Vuex);
 // Configuración global de Axios
@@ -11,5 +12,6 @@ axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 const app = new Vue({
     el: '#app',
     store, // Agrega el store a la instancia de Vue
-    components: { TaskList },
+    components: { TaskList,UserList },
+    
 });

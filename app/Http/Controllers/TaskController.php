@@ -18,14 +18,6 @@ class TaskController extends Controller
         return response()->json($tasks, 200);
     }
 
-    public function findTask($id)
-    {
-        // Obtener todas las tareas, incluyendo la información del usuario asignado
-        $task = Task::with('user')->find($id);
-
-        // Retornar las tareas en formato JSON
-        return response()->json($task, 200);
-    }
 
     // Crear tarea
     public function store(Request $request)
@@ -35,19 +27,11 @@ class TaskController extends Controller
             'description' => 'required|max:500',
             'user' => 'required|max:500',
         ]);
-
-        // $task = new Task($validated);
-        // $user = User::where('email', $validated['user'])->first();
-        // $task->user_id = $user->id;
-        // $task->save();
-
-        // return redirect()->back()->with('success', 'Task created successfully.');
-        // Buscar el usuario por su email
         $user = User::where('email', $validated['user'])->first();
 
         // Si el usuario no se encuentra, devolver un error
         if (!$user) {
-            return response()->json(['error' => 'User not found.'], 404);
+            return response()->json(['message' => 'User not found.'], 404);
         }
 
         // Crear y guardar la nueva tarea
@@ -57,7 +41,7 @@ class TaskController extends Controller
             'user_id' => $user->id,
         ]);
 
-        return response()->json($task->load('user'), 201);
+        return response()->json(['message'=>'Task created successfully.','data'=>$task->load('user')], 201);
     }
 
     public function completedTask($id){
@@ -66,7 +50,7 @@ class TaskController extends Controller
         $task = Task::find($id);
 
         if (!$task) {
-            return response()->json(['error' => 'Task not found.'], 404);
+            return response()->json(['message' => 'Task not found.'], 404);
         }
 
         // Actualizar el campo 'completed' a 1
@@ -89,11 +73,13 @@ class TaskController extends Controller
         $task = Task::find($id);
 
         if (!$task) {
-            return redirect()->back()->with('error', 'Task not found.');
+            return response()->json(['message' => 'Task not found.'], 404);
+        
         }
 
         // Corrección: Se actualiza la tarea con datos validados.
         $task->update($validated);
+        
         return response()->json(['message'=>'Task updated successfully.','task'=>$task], 200);
         // return redirect()->back()->with('success', 'Task updated successfully.');
     }

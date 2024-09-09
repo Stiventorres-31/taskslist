@@ -1,5 +1,6 @@
 <template>
     <div class="container mt-5">
+        <a href="/users">Add user</a>
         <h1 class="text-center mb-4">{{ isEditing ? "Edit Task" : "Task List" }}</h1>
         <ul class="list-group mb-4">
             <li v-for="task in tasks" :key="task.id"
@@ -35,8 +36,16 @@
         </form>
 
         <!-- LISTADO DE TODAS LAS TASKS -->
+        <div class="form-group">
+            <label for="filter">Filter Tasks:</label>
+            <select v-model="filter" class="form-control" id="filter">
+                <option value="all" selected>All Tasks</option>
+                <option value="completed">Completed Tasks</option>
+                <option value="notCompleted">Not Completed Tasks</option>
+            </select>
+        </div>
         <div v-if="tasksDataBase">
-            <li v-for="taskDataBase in tasksDataBase" :key="taskDataBase.id"
+            <li v-for="taskDataBase in filteredTasks" :key="taskDataBase.id"
                 class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
                     <h5 class="mb-1">{{ taskDataBase.title }}</h5>
@@ -45,32 +54,16 @@
                     <small class="text-muted">Assigned to: {{ taskDataBase.user.name }}</small>
                 </div>
                 <div>
-
-
                     <button class="btn btn-primary btn-sm" @click="selectTaskForUpdate(taskDataBase)">Selected</button>
-                    <!-- <button class="btn btn-danger btn-sm" @click="deleteTask(task.id)">Selected</button> -->
                 </div>
             </li>
         </div>
-
-
-
-        <!-- <ul class="list-group mb-4">
-            <li v-for="taskx in tasks" :key="taskx.id"
-                class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                    <h5 class="mb-1">{{ taskx.title }}</h5>
-                    <p class="mb-1">{{ taskx.description }}</p>
-                    <small class="text-muted">Assigned to: {{ taskx.user.name }}</small>
-                </div>
-
-            </li>
-        </ul> -->
 
     </div>
 </template>
 
 <script>
+
 import { mapState, mapActions } from 'vuex';
 
 export default {
@@ -81,24 +74,30 @@ export default {
                 description: '',
                 user: ''
             },
+            filter: 'all',
             selectedTaskId: null,
             isEditing: false
         };
 
     },
     computed: {
-        ...mapState(['tasks', 'tasksDataBase']) // Simplificado para mapState
+        ...mapState(['tasks', 'tasksDataBase']), // Simplificado para mapState
+
+        filteredTasks() {
+            
+            if (this.filter === 'completed') {
+                return this.tasksDataBase.filter(task => task.completed === 1);
+            } else if (this.filter === 'notCompleted') {
+                return this.tasksDataBase.filter(task => task.completed === 0);
+            } else {
+                return this.tasksDataBase;
+            }
+
+        }
     },
     methods: {
         ...mapActions(['fetchTasks', 'addTask', 'completeTask', 'deleteTask', 'updateTask']),
 
-        // fetchTasks() {
-
-
-        //     this.$store.dispatch('fetchTasks').catch(error => {
-        //         console.error('Error fetchTasks task:', error);
-        //     });
-        // },
         addTask() {
             // Se utiliza la acción 'addTask' y luego se limpia el formulario
             if (!this.newTask.title || !this.newTask.description || !this.newTask.user) {
@@ -114,13 +113,6 @@ export default {
                 }).catch(error => {
                     console.error('Error adding task:', error);
                 });
-
-                // this.updateTask({
-                //     id: this.selectedTaskId,
-                //     ...this.newTask
-                // }).then(() => {
-                //     this.resetForm();
-                // });
             } else {
                 this.$store.dispatch('addTask', this.newTask).then(() => {
                     this.resetForm()
@@ -162,9 +154,9 @@ export default {
             this.isEditing = false;
             this.selectedTaskId = null;
         },
+
     },
     mounted() {
-
         this.fetchTasks();
     }
 
