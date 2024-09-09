@@ -33,3 +33,4 @@ Además, deberás agregar una funcionalidad extra para filtrar las tareas comple
 - Se creó una funcion en computed para rentornar el filtrado de las tareas completadas, las que no estaban completadas y todas, y los datos que se retornaran se mostraran en el listado de las tareas
 
 
+El aplicativo quedó funcionando
