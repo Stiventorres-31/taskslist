@@ -1,6 +1,6 @@
 <template>
     <div class="container mt-5">
-        <h1 class="text-center mb-4">Task List</h1>
+        <h1 class="text-center mb-4">{{ isEditing ? "Edit Task" : "Task List" }}</h1>
         <ul class="list-group mb-4">
             <li v-for="task in tasks" :key="task.id"
                 class="list-group-item d-flex justify-content-between align-items-center">
@@ -25,10 +25,34 @@
             <div class="form-group">
                 <input v-model="newTask.user" class="form-control" placeholder="Assigned User" required>
             </div>
-            <button type="submit" class="btn btn-primary btn-block">Add Task</button>
+            <button type="submit" class="btn btn-primary btn-block">
+                {{ isEditing ? "Update Task" : "Add Task" }}
+            </button>
+
+            <button v-if="isEditing" @click="resetForm" class="btn btn-secondary btn-block mt-2">
+                Cancel
+            </button>
         </form>
 
         <!-- LISTADO DE TODAS LAS TASKS -->
+        <div v-if="tasksDataBase">
+            <li v-for="taskDataBase in tasksDataBase" :key="taskDataBase.id"
+                class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-1">{{ taskDataBase.title }}</h5>
+                    <p class="mb-1">Description: {{ taskDataBase.description }}</p>
+                    <p class="mb-1">Completed: {{ (taskDataBase.completed == 1) ? 'Si' : 'No' }}</p>
+                    <small class="text-muted">Assigned to: {{ taskDataBase.user.name }}</small>
+                </div>
+                <div>
+
+
+                    <button class="btn btn-primary btn-sm" @click="selectTaskForUpdate(taskDataBase)">Selected</button>
+                    <!-- <button class="btn btn-danger btn-sm" @click="deleteTask(task.id)">Selected</button> -->
+                </div>
+            </li>
+        </div>
+
 
 
         <!-- <ul class="list-group mb-4">
@@ -57,23 +81,24 @@ export default {
                 description: '',
                 user: ''
             },
-           
+            selectedTaskId: null,
+            isEditing: false
         };
 
     },
     computed: {
-        ...mapState(['tasks']) // Simplificado para mapState
+        ...mapState(['tasks', 'tasksDataBase']) // Simplificado para mapState
     },
     methods: {
         ...mapActions(['fetchTasks', 'addTask', 'completeTask', 'deleteTask']),
 
-        fetchTasks() {
-           
-           
-            this.$store.dispatch('fetchTasks').catch(error => {
-                console.error('Error fetchTasks task:', error);
-            });
-        },
+        // fetchTasks() {
+
+
+        //     this.$store.dispatch('fetchTasks').catch(error => {
+        //         console.error('Error fetchTasks task:', error);
+        //     });
+        // },
         addTask() {
             if (!this.newTask.title || !this.newTask.description || !this.newTask.user) {
                 alert('Both title and description are required');
@@ -82,10 +107,9 @@ export default {
 
             // Se utiliza la acción 'addTask' y luego se limpia el formulario
             this.$store.dispatch('addTask', this.newTask).then(() => {
-                this.newTask.title = '';
-                this.newTask.description = '';
-                this.newTask.user = '';
-
+                this.resetForm()
+                this.$store.dispatch('fetchTasks');
+                
             }).catch(error => {
                 console.error('Error adding task:', error);
             });
@@ -94,22 +118,35 @@ export default {
 
         completeTask(taskId) {
             // Se utiliza la acción 'completeTask'
-            console.log(taskId)
+
             this.$store.dispatch('completeTask', taskId).catch(error => {
                 console.error('Error completing task:', error);
             });
+            this.$store.dispatch('fetchTasks');
         },
         deleteTask(taskId) {
             // Se utiliza la acción 'deleteTask'
             this.$store.dispatch('deleteTask', taskId).catch(error => {
                 console.error('Error deleting task:', error);
             });
-        }
+            this.$store.dispatch('fetchTasks');
+        },
+        selectTaskForUpdate(task) {
+            this.newTask.title = task.title;
+            this.newTask.description = task.description;
+            this.newTask.user = task.user.email;
+            this.isEditing = true;
+            this.selectedTaskId = task.id;
+        },
+        resetForm() {
+            this.newTask = { title: '', description: '', user: '' };
+            this.isEditing = false;
+            this.selectedTaskId = null;
+        },
     },
     mounted() {
-       
 
-
+        this.fetchTasks();
     }
 
 

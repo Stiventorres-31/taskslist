@@ -7,13 +7,15 @@ Vue.use(Vuex);
 export default new Vuex.Store({
     state: {
         tasks: [], // Estado inicial para las tareas
+        tasksDataBase:[]
     },
     mutations: {
         SET_TASKS(state, tasks) {
-            state.tasks = tasks; // Asegúrate de que tasks sea un array aquí
+            state.tasksDataBase = tasks; // Asegúrate de que tasks sea un array aquí
         },
         ADD_TASK(state, task) {
             state.tasks.push(task);
+            state.tasksDataBase.push(task);
         },
         UPDATE_TASK(state, updatedTask) {
             const index = state.tasks.findIndex((t) => t.id === updatedTask.id);
@@ -29,7 +31,7 @@ export default new Vuex.Store({
             const updatedTask = task;
             const index = state.tasks.findIndex((item) => item.id === task.id);
             if (index !== -1) {
-                state.tasks.splice(index, 1, updatedTask); // Actualiza la tarea en la lista de tareas
+               state.tasksDataBase= state.tasks.splice(index, 1, updatedTask); // Actualiza la tarea en la lista de tareas
 
                 state.tasks = state.tasks.filter((item) => item.id !== task.id);
             }
@@ -55,6 +57,7 @@ export default new Vuex.Store({
                     // console.log(response.data)
 
                     commit("ADD_TASK", response.data);
+                   
                 })
                 .catch((error) => {
                     console.error("Error adding task:", error);
@@ -95,5 +98,6 @@ export default new Vuex.Store({
     },
     getters: {
         tasks: (state) => state.tasks,
+        tasksDataBase: (state) => state.tasksDataBase
     },
 });

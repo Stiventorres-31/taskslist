@@ -12,7 +12,7 @@ class TaskController extends Controller
     public function index()
     {
         // Obtener todas las tareas, incluyendo la información del usuario asignado
-        $tasks = Task::all();
+        $tasks = Task::orderBy('id','DESC')->with('user')->get();
 
         // Retornar las tareas en formato JSON
         return response()->json($tasks, 200);
