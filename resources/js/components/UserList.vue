@@ -67,7 +67,7 @@ export default {
 
     },
     computed: {
-        ...mapState(['users', 'usersDataBase','errors']), // Simplificado para mapState
+        ...mapState(['users','errors']), // Simplificado para mapState
     },
     methods: {
         ...mapActions(['fetchUsers', 'updateUser', 'addUser', 'deleteUser']),
@@ -86,7 +86,7 @@ export default {
                     // this.$store.dispatch('fetchUsers');
 
                 }).catch(error => {
-                    console.error('Error adding task:', error);
+                    console.error('Error updated task:', error);
                 });
             } else {
                 this.$store.dispatch('addUser', this.newUser).then(response => {
@@ -102,11 +102,13 @@ export default {
         },
 
         deleteUser(userId) {
-            this.$store.dispatch('deleteUser', userId).then(response => {
+            this.$store.dispatch('deleteUser', userId).then(() => {
 
-                console.log(response.data)
+               
                 this.resetForm()
-            })
+            }).catch(error => {
+                    console.error('Error deleted user:', error);
+                });
         },
         selectUserForUpdate(User) {
             this.newUser.name = User.name;

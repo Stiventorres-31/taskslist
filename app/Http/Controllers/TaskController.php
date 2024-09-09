@@ -41,7 +41,7 @@ class TaskController extends Controller
             'user_id' => $user->id,
         ]);
 
-        return response()->json(['message'=>'Task created successfully.','data'=>$task->load('user')], 201);
+        return response()->json(['message'=>'Task created successfully.','result'=>$task->load('user')], 201);
     }
 
     public function completedTask($id){
@@ -58,7 +58,7 @@ class TaskController extends Controller
         $task->save();
 
         // Retornar la tarea actualizada
-        return response()->json(['message'=>'Task completed successfully.','task'=>$task], 200);
+        return response()->json(['message'=>'Task completed successfully.','result'=>$task], 200);
     }
 
     // Actualizar tarea
@@ -80,7 +80,7 @@ class TaskController extends Controller
         // Corrección: Se actualiza la tarea con datos validados.
         $task->update($validated);
         
-        return response()->json(['message'=>'Task updated successfully.','task'=>$task], 200);
+        return response()->json(['message'=>'Task updated successfully.','result'=>$task->load('user')], 200);
         // return redirect()->back()->with('success', 'Task updated successfully.');
     }
 

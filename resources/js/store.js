@@ -6,47 +6,47 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
-        tasks: [], // Estado inicial para las tareas
-        tasksDataBase: [],
+        tasksx: [], // Estado inicial para las tareas
         users: [],
-        usersDataBase: [],
         errors:{}
     },
     mutations: {
         SET_TASKS(state, tasks) {
-            state.tasksDataBase = tasks; // Asegúrate de que tasks sea un array aquí
+            state.tasksx = tasks; // Asegúrate de que tasks sea un array aquí
         },
         
         ADD_TASK(state, task) {
-            state.tasks.push(task);
-            state.tasksDataBase.push(task);
+            state.tasksx.unshift(task);
+        
         },
         UPDATE_TASK(state, updatedTask) {
-            const index = state.tasks.findIndex((t) => t.id === updatedTask.id);
+            const index = state.tasksx.findIndex((t) => t.id === updatedTask.id);
             if (index !== -1) {
-                Vue.set(state.tasks, index, updatedTask);
+                Vue.set(state.tasksx, index, updatedTask);
             }
         },
         DELETE_TASK(state, taskId) {
-            state.tasks = state.tasks.filter((task) => task.id !== taskId);
+            state.tasksx = state.tasksx.filter((task) => task.id !== taskId);
         },
 
         COMPLETE_TASK(state, task) {
             const updatedTask = task;
-            const index = state.tasks.findIndex((item) => item.id === task.id);
+            const index = state.tasksx.findIndex((item) => item.id === task.id);
             if (index !== -1) {
-                state.tasksDataBase = state.tasks.splice(index, 1, updatedTask); // Actualiza la tarea en la lista de tareas
+                state.tasksx = state.tasksx.splice(index, 1, updatedTask); // Actualiza la tarea en la lista de tareas
 
-                state.tasks = state.tasks.filter((item) => item.id !== task.id);
+                // state.tasksx = state.tasksx.filter((item) => item.id !== task.id);
             }
         },
+
+
 
         SET_USERS(state, users) {
             state.users = users;
         },
 
         ADD_USER(state,user){
-            state.users.push(user)
+            state.users.unshift(user)
         },
         DELETE_USER(state, userId) {
             state.users = state.users.filter((item) => item.id !== userId);
@@ -60,11 +60,13 @@ export default new Vuex.Store({
     },
     actions: {
         fetchTasks({ commit }) {
-            //Todavia no esta funcionando
+           
+
             axios
-                .get("/tasks")
+                .get("/tasks/list")
                 .then((response) => {
-                    commit("SET_TASKS", response.data); // response.data debe ser un array
+
+                    commit("SET_TASKS", response.data);
                 })
                 .catch((error) => {
                     alert("Error: " + error.response?.data?.message || error.message);
@@ -89,8 +91,9 @@ export default new Vuex.Store({
             axios
                 .put(`/tasks/${task.id}`, task.data)
                 .then((response) => {
-                    commit("UPDATE_TASK", response.data.task);
-                    alert(response.data.message);
+                    const data = response.data
+                    commit("UPDATE_TASK", data.result);
+                    alert(data.message);
                 })
                 .catch((error) => {
                     alert("Error: " + error.response?.data?.message || error.message);
@@ -102,8 +105,9 @@ export default new Vuex.Store({
             axios
                 .put(`/tasks/completed/${taskId}`)
                 .then((response) => {
-                    commit("COMPLETE_TASK", response.data.task);
-                    alert(response.data.message);
+                    const data = response.data
+                    commit("COMPLETE_TASK", data.result);
+                    alert(data.message);
                 })
                 .catch((error) => {
                     alert("Error: " + error.response?.data?.message || error.message);
@@ -174,8 +178,7 @@ export default new Vuex.Store({
         }
     },
     getters: {
-        tasks: (state) => state.tasks,
-        tasksDataBase: (state) => state.tasksDataBase,
+        tasks: (state) => state.tasksx,
         errors:(state) => state.errors
     },
 });

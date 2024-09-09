@@ -2,20 +2,7 @@
     <div class="container mt-5">
         <a href="/users">Add user</a>
         <h1 class="text-center mb-4">{{ isEditing ? "Edit Task" : "Task List" }}</h1>
-        <ul class="list-group mb-4">
-            <li v-for="task in tasks" :key="task.id"
-                class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                    <h5 class="mb-1">{{ task.title }}</h5>
-                    <p class="mb-1">{{ task.description }}</p>
-                    <small class="text-muted">Assigned to: {{ task.user.name }}</small>
-                </div>
-                <div>
-                    <button class="btn btn-success btn-sm mr-2" @click="completeTask(task.id)">Complete</button>
-                    <button class="btn btn-danger btn-sm" @click="deleteTask(task.id)">Delete</button>
-                </div>
-            </li>
-        </ul>
+       
         <form @submit.prevent="addTask" class="card card-body">
             <div class="form-group">
                 <input v-model="newTask.title" class="form-control" placeholder="Task Title" required>
@@ -44,20 +31,22 @@
                 <option value="notCompleted">Not Completed Tasks</option>
             </select>
         </div>
-        <div v-if="tasksDataBase">
-            <li v-for="taskDataBase in filteredTasks" :key="taskDataBase.id"
+        <ul class="list-group mb-4">
+            <li v-for="task in filteredTasks" :key="task.id"
                 class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
-                    <h5 class="mb-1">{{ taskDataBase.title }}</h5>
-                    <p class="mb-1">Description: {{ taskDataBase.description }}</p>
-                    <p class="mb-1">Completed: {{ (taskDataBase.completed == 1) ? 'Si' : 'No' }}</p>
-                    <small class="text-muted">Assigned to: {{ taskDataBase.user.name }}</small>
+                    <h5 class="mb-1">{{ task.title }}</h5>
+                    <p class="mb-1">{{ task.description }}</p>
+                    <p class="mb-1">Completed: {{ (task.completed == 1) ? 'Si' : 'No' }}</p>
+                    <small class="text-muted">Assigned to: {{ task.user.name }}</small>
                 </div>
                 <div>
-                    <button class="btn btn-primary btn-sm" @click="selectTaskForUpdate(taskDataBase)">Selected</button>
+                    <button v-if="task.completed===0" class="btn btn-success btn-sm mr-2" @click="completeTask(task.id)">Complete</button>
+                    <button class="btn btn-danger btn-sm" @click="deleteTask(task.id)">Delete</button>
+                    <button class="btn btn-primary btn-sm" @click="selectTaskForUpdate(task)">Selected</button>
                 </div>
             </li>
-        </div>
+        </ul>
 
     </div>
 </template>
@@ -72,7 +61,8 @@ export default {
             newTask: {
                 title: '',
                 description: '',
-                user: ''
+                user: '',
+                completed:0
             },
             filter: 'all',
             selectedTaskId: null,
@@ -81,16 +71,16 @@ export default {
 
     },
     computed: {
-        ...mapState(['tasks', 'tasksDataBase']), // Simplificado para mapState
+        ...mapState(['tasks']), // Simplificado para mapState
 
         filteredTasks() {
             
             if (this.filter === 'completed') {
-                return this.tasksDataBase.filter(task => task.completed === 1);
+                return this.tasks.filter(task => task.completed === 1);
             } else if (this.filter === 'notCompleted') {
-                return this.tasksDataBase.filter(task => task.completed === 0);
+                return this.tasks.filter(task => task.completed === 0);
             } else {
-                return this.tasksDataBase;
+                return this.tasks;
             }
 
         }
@@ -108,7 +98,7 @@ export default {
 
                 this.$store.dispatch('updateTask', { id: this.selectedTaskId, data: this.newTask }).then(() => {
                     this.resetForm()
-                    this.$store.dispatch('fetchTasks');
+                    // this.$store.dispatch('fetchTasks');
 
                 }).catch(error => {
                     console.error('Error adding task:', error);
@@ -116,7 +106,7 @@ export default {
             } else {
                 this.$store.dispatch('addTask', this.newTask).then(() => {
                     this.resetForm()
-                    this.$store.dispatch('fetchTasks');
+                    // this.$store.dispatch('fetchTasks');
 
                 }).catch(error => {
                     console.error('Error adding task:', error);
@@ -133,14 +123,14 @@ export default {
             this.$store.dispatch('completeTask', taskId).catch(error => {
                 console.error('Error completing task:', error);
             });
-            this.$store.dispatch('fetchTasks');
+            // this.$store.dispatch('fetchTasks');
         },
         deleteTask(taskId) {
             // Se utiliza la acción 'deleteTask'
             this.$store.dispatch('deleteTask', taskId).catch(error => {
                 console.error('Error deleting task:', error);
             });
-            this.$store.dispatch('fetchTasks');
+            // this.$store.dispatch('fetchTasks');
         },
         selectTaskForUpdate(task) {
             this.newTask.title = task.title;

@@ -16,17 +16,23 @@ use App\Models\User;
 |
 */
 
-Route::post('/tasks', [TaskController::class, 'store']);
-Route::put('/tasks/{id}', [TaskController::class, 'update']);
-Route::delete('/tasks/{id}', [TaskController::class, 'destroy']);
 
-Route::put('/tasks/completed/{id}', [TaskController::class, 'completedTask']);
-Route::get('/tasks', [TaskController::class, 'index']);
+
+
+
+
+
 Route::get('/', function () {
     return view('tasks');
 });
 
-
+Route::name('tasks')->group(function(){
+    Route::get('/tasks/list', [TaskController::class, 'index']);
+    Route::put('/tasks/completed/{id}', [TaskController::class, 'completedTask']);
+    Route::post('/tasks', [TaskController::class, 'store']);
+    Route::delete('/tasks/{id}', [TaskController::class, 'destroy']);
+    Route::put('/tasks/{id}', [TaskController::class, 'update']);
+});
 
 Route::name('users')->group(function(){
     Route::get('/users',function(){return view('users');});
