@@ -90,7 +90,7 @@ export default {
         ...mapState(['tasks', 'tasksDataBase']) // Simplificado para mapState
     },
     methods: {
-        ...mapActions(['fetchTasks', 'addTask', 'completeTask', 'deleteTask']),
+        ...mapActions(['fetchTasks', 'addTask', 'completeTask', 'deleteTask', 'updateTask']),
 
         // fetchTasks() {
 
@@ -100,19 +100,38 @@ export default {
         //     });
         // },
         addTask() {
+            // Se utiliza la acción 'addTask' y luego se limpia el formulario
             if (!this.newTask.title || !this.newTask.description || !this.newTask.user) {
                 alert('Both title and description are required');
                 return;
             }
+            if (this.isEditing) {
 
-            // Se utiliza la acción 'addTask' y luego se limpia el formulario
-            this.$store.dispatch('addTask', this.newTask).then(() => {
-                this.resetForm()
-                this.$store.dispatch('fetchTasks');
-                
-            }).catch(error => {
-                console.error('Error adding task:', error);
-            });
+                this.$store.dispatch('updateTask', { id: this.selectedTaskId, data: this.newTask }).then(() => {
+                    this.resetForm()
+                    this.$store.dispatch('fetchTasks');
+
+                }).catch(error => {
+                    console.error('Error adding task:', error);
+                });
+
+                // this.updateTask({
+                //     id: this.selectedTaskId,
+                //     ...this.newTask
+                // }).then(() => {
+                //     this.resetForm();
+                // });
+            } else {
+                this.$store.dispatch('addTask', this.newTask).then(() => {
+                    this.resetForm()
+                    this.$store.dispatch('fetchTasks');
+
+                }).catch(error => {
+                    console.error('Error adding task:', error);
+                });
+            }
+
+
 
         },
 

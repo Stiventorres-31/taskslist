@@ -1820,7 +1820,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
     };
   },
   computed: _objectSpread({}, (0,vuex__WEBPACK_IMPORTED_MODULE_0__.mapState)(['tasks', 'tasksDataBase'])),
-  methods: _objectSpread(_objectSpread({}, (0,vuex__WEBPACK_IMPORTED_MODULE_0__.mapActions)(['fetchTasks', 'addTask', 'completeTask', 'deleteTask'])), {}, {
+  methods: _objectSpread(_objectSpread({}, (0,vuex__WEBPACK_IMPORTED_MODULE_0__.mapActions)(['fetchTasks', 'addTask', 'completeTask', 'deleteTask', 'updateTask'])), {}, {
     // fetchTasks() {
     //     this.$store.dispatch('fetchTasks').catch(error => {
     //         console.error('Error fetchTasks task:', error);
@@ -1828,18 +1828,36 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
     // },
     addTask: function addTask() {
       var _this = this;
+      // Se utiliza la acción 'addTask' y luego se limpia el formulario
       if (!this.newTask.title || !this.newTask.description || !this.newTask.user) {
         alert('Both title and description are required');
         return;
       }
+      if (this.isEditing) {
+        this.$store.dispatch('updateTask', {
+          id: this.selectedTaskId,
+          data: this.newTask
+        }).then(function () {
+          _this.resetForm();
+          _this.$store.dispatch('fetchTasks');
+        })["catch"](function (error) {
+          console.error('Error adding task:', error);
+        });
 
-      // Se utiliza la acción 'addTask' y luego se limpia el formulario
-      this.$store.dispatch('addTask', this.newTask).then(function () {
-        _this.resetForm();
-        _this.$store.dispatch('fetchTasks');
-      })["catch"](function (error) {
-        console.error('Error adding task:', error);
-      });
+        // this.updateTask({
+        //     id: this.selectedTaskId,
+        //     ...this.newTask
+        // }).then(() => {
+        //     this.resetForm();
+        // });
+      } else {
+        this.$store.dispatch('addTask', this.newTask).then(function () {
+          _this.resetForm();
+          _this.$store.dispatch('fetchTasks');
+        })["catch"](function (error) {
+          console.error('Error adding task:', error);
+        });
+      }
     },
     completeTask: function completeTask(taskId) {
       // Se utiliza la acción 'completeTask'
@@ -2158,8 +2176,9 @@ vue__WEBPACK_IMPORTED_MODULE_1__["default"].use(vuex__WEBPACK_IMPORTED_MODULE_2_
     },
     updateTask: function updateTask(_ref3, task) {
       var commit = _ref3.commit;
-      axios__WEBPACK_IMPORTED_MODULE_0___default().put("/tasks/".concat(task.id), task).then(function (response) {
-        commit("UPDATE_TASK", response.data);
+      axios__WEBPACK_IMPORTED_MODULE_0___default().put("/tasks/".concat(task.id), task.data).then(function (response) {
+        commit("UPDATE_TASK", response.data.task);
+        alert(response.data.message);
       })["catch"](function (error) {
         console.error("Error updating task:", error);
       });

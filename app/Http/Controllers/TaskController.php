@@ -94,7 +94,8 @@ class TaskController extends Controller
 
         // Corrección: Se actualiza la tarea con datos validados.
         $task->update($validated);
-        return redirect()->back()->with('success', 'Task updated successfully.');
+        return response()->json(['message'=>'Task updated successfully.','task'=>$task], 200);
+        // return redirect()->back()->with('success', 'Task updated successfully.');
     }
 
     // Eliminar tarea

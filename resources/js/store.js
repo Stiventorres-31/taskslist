@@ -65,9 +65,10 @@ export default new Vuex.Store({
         },
         updateTask({ commit }, task) {
             axios
-                .put(`/tasks/${task.id}`, task)
+                .put(`/tasks/${task.id}`, task.data)
                 .then((response) => {
-                    commit("UPDATE_TASK", response.data);
+                    commit("UPDATE_TASK", response.data.task);
+                    alert(response.data.message)
                 })
                 .catch((error) => {
                     console.error("Error updating task:", error);
