@@ -45,7 +45,7 @@ class TaskController extends Controller
     }
 
     public function completedTask($id){
-      
+
 
         $task = Task::find($id);
 
@@ -58,7 +58,7 @@ class TaskController extends Controller
         $task->save();
 
         // Retornar la tarea actualizada
-        return response()->json(['message'=>'Task completed successfully.','result'=>$task], 200);
+        return response()->json(['message'=>'Task completed successfully.','result'=>$task->load('user')], 200);
     }
 
     // Actualizar tarea
@@ -66,20 +66,20 @@ class TaskController extends Controller
     {
 
         $validated = $request->validate([
-            'title' => 'required|max:255',
-            'description' => 'required|max:500',
+            'title' => 'required|max:255|min:4',
+            'description' => 'required|max:500|min:4',
         ]);
 
         $task = Task::find($id);
 
         if (!$task) {
             return response()->json(['message' => 'Task not found.'], 404);
-        
+
         }
 
         // Corrección: Se actualiza la tarea con datos validados.
         $task->update($validated);
-        
+
         return response()->json(['message'=>'Task updated successfully.','result'=>$task->load('user')], 200);
         // return redirect()->back()->with('success', 'Task updated successfully.');
     }

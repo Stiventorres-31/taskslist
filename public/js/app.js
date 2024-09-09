@@ -1821,7 +1821,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
       isEditing: false
     };
   },
-  computed: _objectSpread(_objectSpread({}, (0,vuex__WEBPACK_IMPORTED_MODULE_0__.mapState)(['tasks'])), {}, {
+  computed: _objectSpread(_objectSpread({}, (0,vuex__WEBPACK_IMPORTED_MODULE_0__.mapState)(['tasks', 'errors'])), {}, {
     // Simplificado para mapState
     filteredTasks: function filteredTasks() {
       if (this.filter === 'completed') {
@@ -1870,6 +1870,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
       this.$store.dispatch('completeTask', taskId)["catch"](function (error) {
         console.error('Error completing task:', error);
       });
+
       // this.$store.dispatch('fetchTasks');
     },
     deleteTask: function deleteTask(taskId) {
@@ -1885,6 +1886,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
       this.newTask.user = task.user.email;
       this.isEditing = true;
       this.selectedTaskId = task.id;
+      this.$store.commit('CLEAR_ERRORS');
     },
     resetForm: function resetForm() {
       this.newTask = {
@@ -1894,6 +1896,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
       };
       this.isEditing = false;
       this.selectedTaskId = null;
+      this.$store.commit('CLEAR_ERRORS');
     }
   }),
   mounted: function mounted() {
@@ -1975,6 +1978,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
       this.newUser.email = User.email;
       this.isEditing = true;
       this.selectedUserId = User.id;
+      this.$store.commit('CLEAR_ERRORS');
     },
     resetForm: function resetForm() {
       this.newUser = {
@@ -1983,6 +1987,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
       };
       this.isEditing = false;
       this.selectedUserId = null;
+      this.$store.commit('CLEAR_ERRORS');
     }
   }),
   mounted: function mounted() {
@@ -2097,12 +2102,20 @@ var render = function render() {
     attrs: {
       type: "submit"
     }
-  }, [_vm._v("\n            " + _vm._s(_vm.isEditing ? "Update Task" : "Add Task") + "\n        ")]), _vm._v(" "), _vm.isEditing ? _c("button", {
+  }, [_vm._v("\n            " + _vm._s(_vm.isEditing ? "Update Task" : "Add Task") + "\n        ")]), _vm._v(" "), _c("button", {
     staticClass: "btn btn-secondary btn-block mt-2",
     on: {
       click: _vm.resetForm
     }
-  }, [_vm._v("\n            Cancel\n        ")]) : _vm._e()]), _vm._v(" "), _c("div", {
+  }, [_vm._v("\n            Cancel\n        ")])]), _vm._v(" "), _c("ul", {
+    staticClass: "list-group my-4"
+  }, _vm._l(_vm.errors, function (error) {
+    return _c("li", {
+      staticClass: "list-group-item d-flex justify-content-between align-items-center"
+    }, [_c("div", [_c("h5", {
+      staticClass: "mb-1 text-danger"
+    }, [_vm._v(_vm._s(error[0]))])])]);
+  }), 0), _vm._v(" "), _c("div", {
     staticClass: "form-group"
   }, [_c("label", {
     attrs: {
@@ -2269,19 +2282,19 @@ var render = function render() {
     attrs: {
       type: "submit"
     }
-  }, [_vm._v("\n            " + _vm._s(_vm.isEditing ? "Update User" : "Add User") + "\n        ")]), _vm._v(" "), _vm.isEditing ? _c("button", {
+  }, [_vm._v("\n            " + _vm._s(_vm.isEditing ? "Update User" : "Add User") + "\n        ")]), _vm._v(" "), _c("button", {
     staticClass: "btn btn-secondary btn-block mt-2",
     on: {
       click: _vm.resetForm
     }
-  }, [_vm._v("\n            Cancel\n        ")]) : _vm._e()]), _vm._v(" "), _c("ul", {
-    staticClass: "list-group mb-4"
+  }, [_vm._v("\n            Cancel\n        ")])]), _vm._v(" "), _c("ul", {
+    staticClass: "list-group my-4"
   }, _vm._l(_vm.errors, function (error) {
     return _c("li", {
       staticClass: "list-group-item d-flex justify-content-between align-items-center"
     }, [_c("div", [_c("h5", {
       staticClass: "mb-1 text-danger"
-    }, [_vm._v(_vm._s(error))])])]);
+    }, [_vm._v(_vm._s(error[0]))])])]);
   }), 0), _vm._v(" "), _c("ul", {
     staticClass: "list-group mb-4"
   }, _vm._l(_vm.users, function (user) {
@@ -2376,41 +2389,52 @@ __webpack_require__.r(__webpack_exports__);
 vue__WEBPACK_IMPORTED_MODULE_1__["default"].use(vuex__WEBPACK_IMPORTED_MODULE_2__["default"]);
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (new vuex__WEBPACK_IMPORTED_MODULE_2__["default"].Store({
   state: {
-    tasksx: [],
+    tasks: [],
     // Estado inicial para las tareas
     users: [],
     errors: {}
   },
   mutations: {
     SET_TASKS: function SET_TASKS(state, tasks) {
-      state.tasksx = tasks; // Asegúrate de que tasks sea un array aquí
+      state.tasks = tasks; // Asegúrate de que tasks sea un array aquí
     },
     ADD_TASK: function ADD_TASK(state, task) {
-      state.tasksx.unshift(task);
+      state.tasks.unshift(task);
     },
     UPDATE_TASK: function UPDATE_TASK(state, updatedTask) {
-      var index = state.tasksx.findIndex(function (t) {
+      var index = state.tasks.findIndex(function (t) {
         return t.id === updatedTask.id;
       });
       if (index !== -1) {
-        vue__WEBPACK_IMPORTED_MODULE_1__["default"].set(state.tasksx, index, updatedTask);
+        vue__WEBPACK_IMPORTED_MODULE_1__["default"].set(state.tasks, index, updatedTask);
       }
     },
     DELETE_TASK: function DELETE_TASK(state, taskId) {
-      state.tasksx = state.tasksx.filter(function (task) {
+      state.tasks = state.tasks.filter(function (task) {
         return task.id !== taskId;
       });
     },
     COMPLETE_TASK: function COMPLETE_TASK(state, task) {
-      var updatedTask = task;
-      var index = state.tasksx.findIndex(function (item) {
-        return item.id === task.id;
+      // const index = state.tasks.findIndex((item) => item.id === task.id);
+      // if (index !== -1) {
+      //     // state.tasks.splice(index, 1, taskId); // Actualiza la tarea en la lista de tareas
+
+      //     Vue.set(state.tasks, index, updatedTask);
+      //     console.log(state.tasks[index])
+      //     this.$forceUpdate();
+      // }
+      var index = state.tasks.findIndex(function (t) {
+        return t.id === task.id;
       });
       if (index !== -1) {
-        state.tasksx = state.tasksx.splice(index, 1, updatedTask); // Actualiza la tarea en la lista de tareas
-
-        // state.tasksx = state.tasksx.filter((item) => item.id !== task.id);
+        vue__WEBPACK_IMPORTED_MODULE_1__["default"].set(state.tasks, index, task);
       }
+    },
+    ERRORS: function ERRORS(state, errors) {
+      state.errors = errors;
+    },
+    CLEAR_ERRORS: function CLEAR_ERRORS(state) {
+      state.errors = {}; // Limpia los errores
     },
     SET_USERS: function SET_USERS(state, users) {
       state.users = users;
@@ -2440,7 +2464,6 @@ vue__WEBPACK_IMPORTED_MODULE_1__["default"].use(vuex__WEBPACK_IMPORTED_MODULE_2_
       })["catch"](function (error) {
         var _error$response;
         alert("Error: " + ((_error$response = error.response) === null || _error$response === void 0 || (_error$response = _error$response.data) === null || _error$response === void 0 ? void 0 : _error$response.message) || 0);
-        console.error("Error fetching tasks:", error);
       });
     },
     addTask: function addTask(_ref2, task) {
@@ -2452,7 +2475,6 @@ vue__WEBPACK_IMPORTED_MODULE_1__["default"].use(vuex__WEBPACK_IMPORTED_MODULE_2_
       })["catch"](function (error) {
         var _error$response2;
         alert("Error: " + ((_error$response2 = error.response) === null || _error$response2 === void 0 || (_error$response2 = _error$response2.data) === null || _error$response2 === void 0 ? void 0 : _error$response2.message) || 0);
-        console.error("Error adding task:", error);
       });
     },
     updateTask: function updateTask(_ref3, task) {
@@ -2460,11 +2482,12 @@ vue__WEBPACK_IMPORTED_MODULE_1__["default"].use(vuex__WEBPACK_IMPORTED_MODULE_2_
       axios__WEBPACK_IMPORTED_MODULE_0___default().put("/tasks/".concat(task.id), task.data).then(function (response) {
         var data = response.data;
         commit("UPDATE_TASK", data.result);
+        console.log(data.result);
         alert(data.message);
       })["catch"](function (error) {
         var _error$response3;
         alert("Error: " + ((_error$response3 = error.response) === null || _error$response3 === void 0 || (_error$response3 = _error$response3.data) === null || _error$response3 === void 0 ? void 0 : _error$response3.message) || 0);
-        console.error("Error updating task:", error);
+        commit('ERRORS', error.response.data.errors);
       });
     },
     completeTask: function completeTask(_ref4, taskId) {
@@ -2472,11 +2495,11 @@ vue__WEBPACK_IMPORTED_MODULE_1__["default"].use(vuex__WEBPACK_IMPORTED_MODULE_2_
       axios__WEBPACK_IMPORTED_MODULE_0___default().put("/tasks/completed/".concat(taskId)).then(function (response) {
         var data = response.data;
         commit("COMPLETE_TASK", data.result);
+        console.log(data.result);
         alert(data.message);
       })["catch"](function (error) {
         var _error$response4;
         alert("Error: " + ((_error$response4 = error.response) === null || _error$response4 === void 0 || (_error$response4 = _error$response4.data) === null || _error$response4 === void 0 ? void 0 : _error$response4.message) || 0);
-        console.error("Error updating task:", error);
       });
     },
     deleteTask: function deleteTask(_ref5, taskId) {
@@ -2487,7 +2510,6 @@ vue__WEBPACK_IMPORTED_MODULE_1__["default"].use(vuex__WEBPACK_IMPORTED_MODULE_2_
       })["catch"](function (error) {
         var _error$response5;
         alert("Error: " + ((_error$response5 = error.response) === null || _error$response5 === void 0 || (_error$response5 = _error$response5.data) === null || _error$response5 === void 0 ? void 0 : _error$response5.message) || 0);
-        console.error("Error deleting task:", error);
       });
     },
     fetchUsers: function fetchUsers(_ref6) {
@@ -2497,7 +2519,6 @@ vue__WEBPACK_IMPORTED_MODULE_1__["default"].use(vuex__WEBPACK_IMPORTED_MODULE_2_
       })["catch"](function (error) {
         var _error$response6;
         alert("Error: " + ((_error$response6 = error.response) === null || _error$response6 === void 0 || (_error$response6 = _error$response6.data) === null || _error$response6 === void 0 ? void 0 : _error$response6.message) || 0);
-        console.error("Error fetching users:", error);
       });
     },
     addUser: function addUser(_ref7, User) {
@@ -2509,7 +2530,6 @@ vue__WEBPACK_IMPORTED_MODULE_1__["default"].use(vuex__WEBPACK_IMPORTED_MODULE_2_
       })["catch"](function (error) {
         var _error$response7;
         alert("Error: " + ((_error$response7 = error.response) === null || _error$response7 === void 0 || (_error$response7 = _error$response7.data) === null || _error$response7 === void 0 ? void 0 : _error$response7.message) || 0);
-        console.error("Error adding user:", error);
       });
     },
     deleteUser: function deleteUser(_ref8, userId) {
@@ -2521,7 +2541,6 @@ vue__WEBPACK_IMPORTED_MODULE_1__["default"].use(vuex__WEBPACK_IMPORTED_MODULE_2_
       })["catch"](function (error) {
         var _error$response8;
         alert("Error: " + ((_error$response8 = error.response) === null || _error$response8 === void 0 || (_error$response8 = _error$response8.data) === null || _error$response8 === void 0 ? void 0 : _error$response8.message) || 0);
-        console.error("Error deleting user:", error);
       });
     },
     updateUser: function updateUser(_ref9, User) {
@@ -2533,13 +2552,13 @@ vue__WEBPACK_IMPORTED_MODULE_1__["default"].use(vuex__WEBPACK_IMPORTED_MODULE_2_
       })["catch"](function (error) {
         var _error$response9;
         alert("Error: " + ((_error$response9 = error.response) === null || _error$response9 === void 0 || (_error$response9 = _error$response9.data) === null || _error$response9 === void 0 ? void 0 : _error$response9.message) || 0);
-        console.error("Error updating user:", error);
+        commit('ERRORS', error.response.data.errors);
       });
     }
   },
   getters: {
     tasks: function tasks(state) {
-      return state.tasksx;
+      return state.tasks;
     },
     errors: function errors(state) {
       return state.errors;

@@ -2,7 +2,7 @@
     <div class="container mt-5">
         <a href="/users">Add user</a>
         <h1 class="text-center mb-4">{{ isEditing ? "Edit Task" : "Task List" }}</h1>
-       
+
         <form @submit.prevent="addTask" class="card card-body">
             <div class="form-group">
                 <input v-model="newTask.title" class="form-control" placeholder="Task Title" required>
@@ -17,10 +17,21 @@
                 {{ isEditing ? "Update Task" : "Add Task" }}
             </button>
 
-            <button v-if="isEditing" @click="resetForm" class="btn btn-secondary btn-block mt-2">
+            <button @click="resetForm" class="btn btn-secondary btn-block mt-2">
                 Cancel
             </button>
         </form>
+
+        <!-- ERRORES -->
+        <ul class="list-group my-4">
+            <li v-for="error in errors"
+                class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-1 text-danger">{{ error[0] }}</h5>
+                </div>
+
+            </li>
+        </ul>
 
         <!-- LISTADO DE TODAS LAS TASKS -->
         <div class="form-group">
@@ -42,6 +53,7 @@
                 </div>
                 <div>
                     <button v-if="task.completed===0" class="btn btn-success btn-sm mr-2" @click="completeTask(task.id)">Complete</button>
+
                     <button class="btn btn-danger btn-sm" @click="deleteTask(task.id)">Delete</button>
                     <button class="btn btn-primary btn-sm" @click="selectTaskForUpdate(task)">Selected</button>
                 </div>
@@ -71,10 +83,10 @@ export default {
 
     },
     computed: {
-        ...mapState(['tasks']), // Simplificado para mapState
+        ...mapState(['tasks','errors']), // Simplificado para mapState
 
         filteredTasks() {
-            
+
             if (this.filter === 'completed') {
                 return this.tasks.filter(task => task.completed === 1);
             } else if (this.filter === 'notCompleted') {
@@ -112,9 +124,6 @@ export default {
                     console.error('Error adding task:', error);
                 });
             }
-
-
-
         },
 
         completeTask(taskId) {
@@ -123,6 +132,7 @@ export default {
             this.$store.dispatch('completeTask', taskId).catch(error => {
                 console.error('Error completing task:', error);
             });
+
             // this.$store.dispatch('fetchTasks');
         },
         deleteTask(taskId) {
@@ -138,18 +148,18 @@ export default {
             this.newTask.user = task.user.email;
             this.isEditing = true;
             this.selectedTaskId = task.id;
+            this.$store.commit('CLEAR_ERRORS');
         },
         resetForm() {
             this.newTask = { title: '', description: '', user: '' };
             this.isEditing = false;
             this.selectedTaskId = null;
+            this.$store.commit('CLEAR_ERRORS');
         },
 
     },
     mounted() {
         this.fetchTasks();
     }
-
-
 };
 </script>

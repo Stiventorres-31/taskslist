@@ -15,19 +15,22 @@
                 {{ isEditing ? "Update User" : "Add User" }}
             </button>
 
-            <button v-if="isEditing" @click="resetForm" class="btn btn-secondary btn-block mt-2">
+            <button  @click="resetForm" class="btn btn-secondary btn-block mt-2">
                 Cancel
             </button>
         </form>
-        <ul class="list-group mb-4">
-            <li v-for="error in errors" 
+
+        <!-- ERRORES -->
+        <ul class="list-group my-4">
+            <li v-for="error in errors"
                 class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
-                    <h5 class="mb-1 text-danger">{{ error }}</h5>
+                    <h5 class="mb-1 text-danger">{{ error[0] }}</h5>
                 </div>
-                
+
             </li>
         </ul>
+
         <!-- LISTADO DE TODAS LOS USUARIOS -->
         <ul class="list-group mb-4">
             <li v-for="user in users" :key="user.id"
@@ -82,7 +85,7 @@ export default {
 
                 this.$store.dispatch('updateUser', { id: this.selectedUserId, data: this.newUser }).then(() => {
                     this.resetForm()
-                 
+
                     // this.$store.dispatch('fetchUsers');
 
                 }).catch(error => {
@@ -91,7 +94,7 @@ export default {
             } else {
                 this.$store.dispatch('addUser', this.newUser).then(response => {
                     this.resetForm()
-             
+
                     // this.$store.dispatch('fetchUsers');
 
                 }).catch(error => {
@@ -104,7 +107,7 @@ export default {
         deleteUser(userId) {
             this.$store.dispatch('deleteUser', userId).then(() => {
 
-               
+
                 this.resetForm()
             }).catch(error => {
                     console.error('Error deleted user:', error);
@@ -115,11 +118,13 @@ export default {
             this.newUser.email = User.email;
             this.isEditing = true;
             this.selectedUserId = User.id;
+            this.$store.commit('CLEAR_ERRORS');
         },
         resetForm() {
             this.newUser = { name: '', email: '' };
             this.isEditing = false;
             this.selectedUserId = null;
+            this.$store.commit('CLEAR_ERRORS');
         },
 
     },
